@@ -24,8 +24,21 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(unique = true)
+    private String mobNo;
+
     @Column(nullable = false)
     private String password;
+
+    private Character gender;
+
+    private Integer YearOfBirth;
+
+    private String sport;
+
+    private Integer weight;
+
+    private String city;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
