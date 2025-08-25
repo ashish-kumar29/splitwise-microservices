@@ -1,14 +1,16 @@
 package com.ashish.splitwise.UserService.Service;
 
-import com.ashish.splitwise.UserService.DTO.UserBasicDTO;
+import com.ashish.splitwise.UserService.DTO.LoginRequest;
+import com.ashish.splitwise.UserService.DTO.UserRegistrationRequest;
+import com.ashish.splitwise.UserService.DTO.UserRegistrationResponse;
 import com.ashish.splitwise.UserService.Dao.UserDao;
 import com.ashish.splitwise.UserService.Exception.UserNotFoundException;
 import com.ashish.splitwise.UserService.Model.User;
+import com.ashish.splitwise.UserService.Security.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServicesImpl implements UserService{
@@ -58,9 +60,32 @@ public class UserServicesImpl implements UserService{
     }
 
     @Override
-    public UserBasicDTO getUserInfo(long id) {
+    public UserRegistrationRequest getUserInfo(long id) {
         User user = getUserById(id);
-        return new UserBasicDTO(id, user.getEmail(), user.getMobNo(), user.getPassword());
+        return new UserRegistrationRequest(user.getName(), user.getEmail(), user.getMobNo(), user.getPassword());
+    }
+
+    @Override
+    public UserRegistrationResponse registerUser(UserRegistrationRequest request) {
+        if(userDao.findByEmail(request.getEmail()).isPresent()){
+            throw new RuntimeException("Email already present");
+        }
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setMobNo(request.getMobNo());
+        user.setPassword(request.getPassword());
+        User createdUser = createUser(user);
+        return new UserRegistrationResponse(createdUser.getId(), createdUser.getName(), createdUser.getEmail());
+    }
+
+    @Override
+    public String loginUser(LoginRequest request) {
+        User user = getUserByEmail(request.getEmail());
+        if(!user.getPassword().equals(request.getPassword())){
+            throw new RuntimeException("Invalid Credentials");
+        }
+        return JwtUtil.generateToken(request.getEmail());
     }
 
 

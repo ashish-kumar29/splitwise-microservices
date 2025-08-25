@@ -7,8 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @Setter
 @Getter
-public class UserBasicDTO {
-    private Long id;
+public class UserRegistrationRequest {
+    private String name;
     private String email;
     private String mobNo;
     private String password;
