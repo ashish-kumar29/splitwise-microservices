@@ -7,6 +7,7 @@ import com.ashish.splitwise.UserService.Dao.UserDao;
 import com.ashish.splitwise.UserService.Exception.UserNotFoundException;
 import com.ashish.splitwise.UserService.Model.User;
 import com.ashish.splitwise.UserService.Security.JwtUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,9 +17,11 @@ import java.util.List;
 public class UserServicesImpl implements UserService{
 
     private UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServicesImpl(UserDao userDao){
+    public UserServicesImpl(UserDao userDao, PasswordEncoder passwordEncoder){
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -74,7 +77,8 @@ public class UserServicesImpl implements UserService{
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setMobNo(request.getMobNo());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
         User createdUser = createUser(user);
         return new UserRegistrationResponse(createdUser.getId(), createdUser.getName(), createdUser.getEmail());
     }

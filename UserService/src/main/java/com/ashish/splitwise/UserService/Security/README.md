@@ -112,4 +112,120 @@ public static String extractEmail(String token) {
 
 ---
 
-Do you want me to also show you a **real request/response example** (like Postman test of login API with JWT)?
+# 🔐 Enforcing JWT Authentication in Spring Boot
+
+This guide explains how JWT-based authentication is enforced using:
+
+* `CustomUserDetail`
+* `CustomUserDetailsService`
+* `JwtAuthenticationFilter`
+* `SecurityConfig`
+* `LoginRequest` & `LoginResponse`
+
+---
+
+## 🛠️ 1. User Login Flow
+
+### Step 1: User sends login request
+
+```json
+POST /api/user/login
+{
+  "email": "ashish@test.com",
+  "password": "1234"
+}
+```
+
+### Step 2: Authenticate & Generate JWT
+
+* The `AuthenticationManager` validates email & password.
+* If valid → generate **JWT token** using `JwtUtil`.
+* Return token to client:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+---
+
+## 🔑 2. Securing Endpoints
+
+In `SecurityConfig`, define which APIs are public vs protected:
+
+```java
+http.csrf(csrf -> csrf.disable())
+    .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/api/user/login", "/api/user/register").permitAll()
+        .anyRequest().authenticated()
+    )
+    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+```
+
+✅ `/login` and `/register` → open to everyone
+✅ All other endpoints → require a valid JWT in header
+
+---
+
+## 🛡️ 3. Enforcing JWT with Filter
+
+The **`JwtAuthenticationFilter`** runs on every request:
+
+```java
+String authHeader = request.getHeader("Authorization");
+
+if (authHeader != null && authHeader.startsWith("Bearer ")) {
+    String token = authHeader.substring(7);
+    String email = jwtUtil.extractEmail(token);
+
+    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        var userDetails = userService.loadUserByUsername(email);
+
+        if (jwtUtil.isTokenValid(token, email)) {
+            UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        }
+    }
+}
+```
+
+👉 Extracts token from header
+👉 Validates it with `JwtUtil`
+👉 If valid → set authentication in `SecurityContextHolder`
+
+Without this, request won’t pass security.
+
+---
+
+## 📬 4. Using Postman for Testing
+
+### Step 1: Login & Get Token
+
+* Send `POST /api/user/login` with email/password.
+* Copy the `token` from response.
+
+### Step 2: Send Authenticated Request
+
+In Postman **Headers tab**:
+
+* **Key** → `Authorization`
+* **Value** → `Bearer <your_token_here>`
+
+Example:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+If token is missing or invalid → server returns `401 Unauthorized`.
+
+---
+
+## ⚡ Summary
+
+1. **Login** → User authenticated with `AuthenticationManager`, JWT returned.
+2. **SecurityConfig** → Defines which endpoints require token.
+3. **JwtAuthenticationFilter** → Enforces token on every request.
+4. **Postman** → Pass `Authorization: Bearer <token>` header to access secured APIs.

@@ -66,10 +66,5 @@ public class UserController {
         return ResponseEntity.ok(userServices.registerUser(registrationRequest));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request){
-        String token = userServices.loginUser(request);
-        return ResponseEntity.ok(new LoginResponse(token));
-    }
 
 }
