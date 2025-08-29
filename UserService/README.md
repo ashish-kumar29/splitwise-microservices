@@ -76,18 +76,19 @@ sequenceDiagram
 
 ---
 
-## 🎭 Use Case Diagram
+## Use Case Diagram
 
 ```mermaid
 usecaseDiagram
-    actor User as "End User"
+  actor User as "End User"
 
-    User --> (Register New User)
-    User --> (Login with Email & Password)
-    User --> (Access Secured APIs)
+  User --> (Register New User)
+  User --> (Login with Email & Password)
+  User --> (Access Secured APIs)
 
-    (Login with Email & Password) --> (Receive JWT Token)
-    (Access Secured APIs) --> (JWT Token Validation)
+  (Login with Email & Password) --> (Receive JWT Token)
+  (Access Secured APIs) --> (JWT Token Validation)
+
 ```
 
 ---
