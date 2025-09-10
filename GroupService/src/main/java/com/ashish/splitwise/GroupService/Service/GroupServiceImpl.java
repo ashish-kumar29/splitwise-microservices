@@ -1,9 +1,12 @@
 package com.ashish.splitwise.GroupService.Service;
 
+import com.ashish.splitwise.GroupService.Client.UserClient;
 import com.ashish.splitwise.GroupService.Dao.GroupDao;
 import com.ashish.splitwise.GroupService.Dao.GroupMemberDao;
+import com.ashish.splitwise.GroupService.Dto.UserDto;
 import com.ashish.splitwise.GroupService.Model.Group;
 import com.ashish.splitwise.GroupService.Model.GroupMember;
+import com.ashish.splitwise.GroupService.Model.GroupMemberId;
 import com.ashish.splitwise.GroupService.Model.Role;
 import org.springframework.stereotype.Service;
 
@@ -15,23 +18,30 @@ public class GroupServiceImpl implements GroupService{
 
     private final GroupDao groupDao;
     private final GroupMemberService groupMemberService;
+    private final UserClient user;
 
-    public GroupServiceImpl(GroupDao groupDao, GroupMemberService groupMemberService) {
+    public GroupServiceImpl(GroupDao groupDao, GroupMemberService groupMemberService, UserClient user) {
         this.groupDao = groupDao;
         this.groupMemberService = groupMemberService;
+        this.user = user;   
     }
 
     @Override
     public Group createGroup(Group group) {
-        List<GroupMember> members = group.getMembers() != null ? group.getMembers() : new ArrayList<>();
-        boolean hasAdmin = members.stream().anyMatch(m -> m.getRole() == Role.ADMIN);
-        if(!hasAdmin){
+        Long adminUserId = group.getAdminUserId();
+        if(adminUserId == null){
             throw new IllegalArgumentException("A group must have an admin");
         }
-        // Ensure each member has the group reference
-        members.forEach(member -> member.setGroup(group));
-        group.setMembers(members);
-        return groupDao.save(group);
+        Group savedGroup = groupDao.save(group);
+//        UserDto userInfo = user.getUser(adminUserId);
+
+        // Create GroupMember
+        GroupMember member1 = convertToMember(savedGroup, adminUserId, Role.ADMIN, "ADMIN USER");
+        List<GroupMember> members = savedGroup.getMembers();
+        members = members == null? new ArrayList<>():members;
+        members.add(member1);
+        savedGroup.setMembers(members);
+        return groupDao.save(savedGroup);
     }
 
     @Override
@@ -45,33 +55,22 @@ public class GroupServiceImpl implements GroupService{
     }
 
     @Override
-    public Group getGroupByAdmin(Long adminId) {
-
-        return groupDao.findByAdmin(adminId).orElseThrow(()-> new RuntimeException("no Group for given Group Member id "+adminId));
+    public List<Group> getGroupByAdminUserId(Long adminUserId) {
+        List<Group> groups = groupMemberService.getAllGroupByUserId(adminUserId);
+        return groups.stream()
+                .filter(g -> adminUserId.equals(g.getAdminUserId()))
+                .toList();
     }
 
     @Override
-    public GroupMember getGroupAdminByGroupId(Long id) {
+    public GroupMember getGroupAdminByGroupId(Long id) throws Exception{
         Group group = getGroupById(id);
 
         // Fast path: adminId already cached
-        if (group.getAdminId() != null) {
-            return groupMemberService.getMemberById(group.getAdminId()); // direct DB lookup
+        if (group.getAdminUserId() != null) {
+            return groupMemberService.getMemberById(new GroupMemberId(group.getId(), group.getAdminUserId())); // direct DB lookup
         }
-
-        // Fallback: compute from members
-        List<GroupMember> members = group.getMembers();
-        GroupMember admin = members.stream()
-                .filter(m -> m.getRole() == Role.ADMIN)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No admin found in members list"));
-
-        // Cache adminId (points to GroupMember.id)
-        if(group.getAdminId() == null){
-            group.setAdminId(admin.getId());
-            updateGroup(id, group);
-        }
-        return admin;
+        return null;
     }
 
     @Override
@@ -79,45 +78,20 @@ public class GroupServiceImpl implements GroupService{
         Group group = getGroupById(id);
         return group.getMembers();
     }
-
-//    @Override
-//    public String addMemberToGroup(Long groupId, GroupMember groupMember) {
-//        Group group = getGroupById(groupId);
-//        List<GroupMember> members = group.getMembers();
-//        members.add(groupMember);
-//        group.setMembers(new ArrayList<>(members));
-//        groupDao.update(group);
-//        return "Member added successfully";
-//    }
-//
-//    @Override
-//    public String deleteMemberFromGroup(Long groupId, GroupMember groupMember) {
-//        Group group = getGroupById(groupId);
-//        List<GroupMember> members = group.getMembers();
-//        members.remove(groupMember);
-//        group.setMembers(new ArrayList<>(members));
-//        groupDao.update(group);
-//        return "Member deleted successfully";
-//    }
-
     @Override
-    public String addMemberToGroup(Long groupId, Long memberId) {
+    public String addMemberToGroup(Long groupId, Long userId) {
         Group group = getGroupById(groupId);
-        GroupMember groupMember = groupMemberService.getMemberById(memberId);
-        groupMember.setGroup(group);
-        List<GroupMember> members = group.getMembers();
-        members.add(groupMember);
-        group.setMembers(new ArrayList<>(members));
+        GroupMember groupMember = convertToMember(group, userId, Role.MEMBER, "member");
+        group.getMembers().add(groupMember);
         groupDao.update(group);
         return "Member added successfully";
     }
 
     @Override
-    public String deleteMemberFromGroup(Long groupId, Long memberId) {
+    public String deleteMemberFromGroup(Long groupId, Long id) throws Exception{
         Group group = getGroupById(groupId);
-        GroupMember groupMember = groupMemberService.getMemberById(memberId);
+        GroupMember groupMember = groupMemberService.getMemberById(new GroupMemberId(group.getId(), id));
         group.getMembers().remove(groupMember);
-        groupMember.setGroup(null);
         groupDao.update(group);
         return "Member deleted successfully";
     }
@@ -144,4 +118,14 @@ public class GroupServiceImpl implements GroupService{
         }
         return group1;
     }
+    public GroupMember convertToMember(Group group, Long userId, Role role, String username){
+        GroupMember member1 = GroupMember.builder()
+                .id(new GroupMemberId(group.getId(), userId))
+                .role(role)
+                .group(group)
+                .userName(username)
+                .build();
+        return member1;
+    }
+
 }

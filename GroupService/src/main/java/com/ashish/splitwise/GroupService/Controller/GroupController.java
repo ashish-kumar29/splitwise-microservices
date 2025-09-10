@@ -34,8 +34,8 @@ public class GroupController {
     }
 
     @GetMapping("/admin/{adminId}")
-    public Group getGroupByAdmin(@PathVariable Long adminId){
-        return groupService.getGroupByAdmin(adminId);
+    public List<Group> getGroupsByAdmin(@PathVariable Long adminId){
+        return groupService.getGroupByAdminUserId(adminId);
     }
 
     @GetMapping
@@ -44,7 +44,7 @@ public class GroupController {
     }
 
     @GetMapping("/{id}/admin")
-    public GroupMember getAdmin(@PathVariable Long id){
+    public GroupMember getAdmin(@PathVariable Long id) throws Exception{
         return groupService.getGroupAdminByGroupId(id);
     }
 
@@ -53,12 +53,12 @@ public class GroupController {
         return groupService.getAllMembersByGroupId(id);
     }
 
-    @PostMapping("{groupId}/member/{memberId}")
+    @PostMapping("{groupId}/user/{memberId}")
     public String addMember(@PathVariable Long groupId, @PathVariable Long memberId){
         return groupService.addMemberToGroup(groupId, memberId);
     }
-    @DeleteMapping("{groupId}/member/{memberId}")
-    public String deleteMember(@PathVariable Long groupId, @PathVariable Long memberId){
+    @DeleteMapping("{groupId}/user/{memberId}")
+    public String deleteMember(@PathVariable Long groupId, @PathVariable Long memberId)throws Exception{
         return groupService.deleteMemberFromGroup(groupId, memberId);
     }
 

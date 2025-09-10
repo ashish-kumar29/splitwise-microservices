@@ -28,8 +28,8 @@ public class Group {
 
     private String description;
 
-    @Column(name = "admin_id", nullable = true)
-    private Long adminId;
+    @Column(name = "admin_user_id", nullable = true)
+    private Long adminUserId;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 

@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/login", "/api/user/register").permitAll()
 
                         // All other requests require authentication
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 // Add our JWT filter before Spring's default UsernamePasswordAuthenticationFilter

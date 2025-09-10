@@ -18,18 +18,15 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class GroupMember {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, name = "user_id")
-    private Long userId;
+    @EmbeddedId
+    private GroupMemberId id;
 
     @Column(nullable = false, name = "user_name")
     private String userName;
 
-    @JoinColumn(name = "group_id", nullable = true)
+    @JoinColumn(name = "group_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("groupId")
     @JsonBackReference
     private Group group;
 
@@ -38,4 +35,8 @@ public class GroupMember {
     private Role role;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public Long getUserId(){
+        return id!=null?id.getUserId():null;
+    }
 }

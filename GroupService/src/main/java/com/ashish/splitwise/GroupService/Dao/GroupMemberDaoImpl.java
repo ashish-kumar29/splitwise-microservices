@@ -1,7 +1,9 @@
 package com.ashish.splitwise.GroupService.Dao;
 
 
+import com.ashish.splitwise.GroupService.Model.Group;
 import com.ashish.splitwise.GroupService.Model.GroupMember;
+import com.ashish.splitwise.GroupService.Model.GroupMemberId;
 import com.ashish.splitwise.GroupService.Repository.GroupMemberRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,29 +19,14 @@ public class GroupMemberDaoImpl implements GroupMemberDao{
         this.memberRepository = memberRepository;
     }
 
+
     @Override
-    public GroupMember save(GroupMember groupMember) {
-        return memberRepository.save(groupMember);
+    public List<Group> getAllGroupOfUser(Long userId) {
+        return memberRepository.findAllByUserId(userId);
     }
 
     @Override
-    public GroupMember update(GroupMember groupMember) {
-        return memberRepository.save(groupMember);
-    }
-
-    @Override
-    public Optional<GroupMember> findById(Long id) {
+    public Optional<GroupMember> findById(GroupMemberId id) {
         return memberRepository.findById(id);
     }
-
-    @Override
-    public List<GroupMember> findAll() {
-        return memberRepository.findAll();
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        memberRepository.deleteById(id);
-    }
-
 }

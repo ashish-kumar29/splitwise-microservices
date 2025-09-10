@@ -35,7 +35,7 @@ public class GroupDaoImpl implements GroupDao{
 
     @Override
     public Optional<Group> findByAdmin(Long memberId) {
-        return groupRepository.findByAdminId(memberId);
+        return groupRepository.findByAdminUserId(memberId);
     }
 
     @Override

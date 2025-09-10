@@ -10,13 +10,11 @@ public interface GroupService {
     public Group createGroup(Group group);
     public Group getGroupById(Long id);
     public List<Group> getAllGroup();
-    public Group getGroupByAdmin(Long adminId);
-    public GroupMember getGroupAdminByGroupId(Long id);
+    public List<Group> getGroupByAdminUserId(Long adminUserId);
+    public GroupMember getGroupAdminByGroupId(Long id) throws Exception;
     public List<GroupMember> getAllMembersByGroupId(Long id);
-//    public String addMemberToGroup(Long groupId, GroupMember groupMember);
-//    public String deleteMemberFromGroup(Long groupId, GroupMember groupMember);
-    public String addMemberToGroup(Long groupId, Long memberId);
-    public String deleteMemberFromGroup(Long groupId, Long memberId);
+    public String addMemberToGroup(Long groupId, Long userId);
+    public String deleteMemberFromGroup(Long groupId, Long userId) throws Exception;
     public Group updateGroup(Long id, Group group);
     public String deleteGroup(Long id);
 }

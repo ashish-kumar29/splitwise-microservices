@@ -1,14 +1,13 @@
 package com.ashish.splitwise.GroupService.Dao;
 
+import com.ashish.splitwise.GroupService.Model.Group;
 import com.ashish.splitwise.GroupService.Model.GroupMember;
+import com.ashish.splitwise.GroupService.Model.GroupMemberId;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface GroupMemberDao {
-    public GroupMember save(GroupMember groupMember);
-    public GroupMember update(GroupMember groupMember);
-    public Optional<GroupMember> findById(Long id);
-    public List<GroupMember> findAll();
-    public void deleteById(Long id);
+    public List<Group> getAllGroupOfUser(Long userId);
+    public Optional<GroupMember> findById(GroupMemberId id);
 }

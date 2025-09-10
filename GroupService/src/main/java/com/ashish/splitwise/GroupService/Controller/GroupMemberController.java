@@ -2,6 +2,7 @@ package com.ashish.splitwise.GroupService.Controller;
 
 import com.ashish.splitwise.GroupService.Model.Group;
 import com.ashish.splitwise.GroupService.Model.GroupMember;
+import com.ashish.splitwise.GroupService.Model.GroupMemberId;
 import com.ashish.splitwise.GroupService.Model.Role;
 import com.ashish.splitwise.GroupService.Service.GroupMemberService;
 import com.ashish.splitwise.GroupService.Service.GroupService;
@@ -20,40 +21,19 @@ public class GroupMemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping
-    public ResponseEntity<GroupMember> insertGroupMember(@RequestBody GroupMember groupMember){
-        return ResponseEntity.ok(memberService.createMember(groupMember));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<GroupMember> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember groupMember){
-        return ResponseEntity.ok(memberService.updateMemberById(id, groupMember));
-    }
-
-    @GetMapping("/{id}")
-    public GroupMember getGroupMemberById(@PathVariable Long id){
+    @GetMapping("/id")
+    public GroupMember getGroupMemberById(@RequestBody GroupMemberId id) throws Exception{
         return memberService.getMemberById(id);
     }
 
-    @GetMapping
-    public List<GroupMember> getAllGroupMembers(){
-        return memberService.getAllMembers();
-    }
-
-    @GetMapping("/{id}/group")
-    public Group getGroupByMemberId(@PathVariable Long id){
-        return memberService.getGroupByMemberId(id);
-    }
-
-    @GetMapping("/{id}/role")
-    public Role getRoleByMemberId(@PathVariable Long id){
+    @GetMapping("/role")
+    public Role getRoleByMemberId(@RequestBody GroupMemberId id) throws  Exception{
         return memberService.getRoleById(id);
     }
 
-
-    @DeleteMapping("/{id}")
-    public String deleteGroupMember(@PathVariable Long id){
-        return memberService.deleteMemberById(id);
+    @GetMapping("/user/{id}")
+    public List<Group> getAllGroupsByUserId(@PathVariable Long userId){
+        return memberService.getAllGroupByUserId(userId);
     }
 
 
