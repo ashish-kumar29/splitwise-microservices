@@ -5,7 +5,7 @@ import com.ashish.splitwise.UserService.Model.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserDao {
+public interface    UserDao {
     User save(User user);
     User update(User user);
     Optional<User> findById(Long id);

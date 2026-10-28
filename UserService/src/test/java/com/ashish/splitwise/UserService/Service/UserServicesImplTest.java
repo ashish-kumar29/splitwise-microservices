@@ -22,6 +22,9 @@ public class UserServicesImplTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AuthService authService;
+
     @Test
     void testUserRegistration(){
         UserRegistrationRequest request = new UserRegistrationRequest();
@@ -30,7 +33,7 @@ public class UserServicesImplTest {
         request.setMobNo("1234567548987");
         request.setPassword("password");
 
-        UserRegistrationResponse response = userService.registerUser(request);
+        UserRegistrationResponse response = authService.registerUser(request);
 
         assertNotNull(response.getId());
         assertEquals("Ashsdddfish", response.getName());

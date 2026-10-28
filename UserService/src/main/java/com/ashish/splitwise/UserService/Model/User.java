@@ -42,4 +42,7 @@ public class User {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "real_pwd_for_reference")
+    private String pwdForRef;
+
 }

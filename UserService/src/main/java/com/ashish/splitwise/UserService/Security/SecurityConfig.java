@@ -60,10 +60,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // Allow login & register APIs without authentication
-                        .requestMatchers("/api/user/login", "/api/user/register").permitAll()
+                        .requestMatchers(
+                                "/api/user/login",
+                                "/api/user/register",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml"
+                        ).permitAll()
 
                         // All other requests require authentication
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 // Add our JWT filter before Spring's default UsernamePasswordAuthenticationFilter

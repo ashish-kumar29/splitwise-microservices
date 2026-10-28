@@ -6,12 +6,14 @@ import com.ashish.splitwise.UserService.DTO.UserRegistrationRequest;
 import com.ashish.splitwise.UserService.DTO.UserRegistrationResponse;
 import com.ashish.splitwise.UserService.Model.User;
 import com.ashish.splitwise.UserService.Service.UserServicesImpl;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "authBearer")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -59,11 +61,6 @@ public class UserController {
     @GetMapping("/age/{id}")
     public Integer getAge(@PathVariable long id){
         return userServices.getAge(id);
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<UserRegistrationResponse> registerNewUser(@RequestBody UserRegistrationRequest registrationRequest){
-        return ResponseEntity.ok(userServices.registerUser(registrationRequest));
     }
 
 

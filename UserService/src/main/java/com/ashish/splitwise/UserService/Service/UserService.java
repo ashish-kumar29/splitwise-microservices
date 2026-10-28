@@ -16,6 +16,5 @@ public interface UserService {
     public List<User> findAllUser();
     public void deleteUser(long id);
     public UserRegistrationRequest getUserInfo(long id);
-    public UserRegistrationResponse registerUser(UserRegistrationRequest request);
     public String loginUser(LoginRequest request);
 }

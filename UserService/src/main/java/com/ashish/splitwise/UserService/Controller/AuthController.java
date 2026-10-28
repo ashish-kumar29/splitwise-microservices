@@ -1,7 +1,6 @@
 package com.ashish.splitwise.UserService.Controller;
 
-import com.ashish.splitwise.UserService.DTO.LoginRequest;
-import com.ashish.splitwise.UserService.DTO.LoginResponse;
+import com.ashish.splitwise.UserService.DTO.*;
 import com.ashish.splitwise.UserService.Service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,4 +24,17 @@ public class AuthController {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
+
+
+    @PostMapping("/register")
+    public ResponseEntity<UserRegistrationResponse> registerNewUser(@RequestBody UserRegistrationRequest registrationRequest){
+        return ResponseEntity.ok(authService.registerUser(registrationRequest));
+    }
+
+    @PostMapping("/forgetPwd")
+    public ResponseEntity<ForgetPasswordResponse> forgetPwd(@RequestBody UserNewPassword userNewPassword){
+        ForgetPasswordResponse response = authService.resetPassword(userNewPassword);
+        return ResponseEntity.ok(response);
+    }
+
 }

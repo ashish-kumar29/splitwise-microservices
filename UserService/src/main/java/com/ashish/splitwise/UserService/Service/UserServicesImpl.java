@@ -26,11 +26,16 @@ public class UserServicesImpl implements UserService{
 
     @Override
     public User createUser(User user){
+        user.setPwdForRef(user.getPassword());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userDao.save(user);
     }
 
     @Override
     public User updateUser(User user, Long id){
+        if(user.getPassword()!=null || user.getPwdForRef()!=null){
+            throw new RuntimeException("Cannot update password");
+        }
         user = convertToUser(user, id);
         return userDao.save(user);
     }
@@ -68,20 +73,6 @@ public class UserServicesImpl implements UserService{
         return new UserRegistrationRequest(user.getName(), user.getEmail(), user.getMobNo(), user.getPassword());
     }
 
-    @Override
-    public UserRegistrationResponse registerUser(UserRegistrationRequest request) {
-        if(userDao.findByEmail(request.getEmail()).isPresent()){
-            throw new RuntimeException("Email already present");
-        }
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setMobNo(request.getMobNo());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        User createdUser = createUser(user);
-        return new UserRegistrationResponse(createdUser.getId(), createdUser.getName(), createdUser.getEmail());
-    }
 
     @Override
     public String loginUser(LoginRequest request) {
@@ -100,9 +91,6 @@ public class UserServicesImpl implements UserService{
         }
         if(user.getEmail() != null && user.getEmail()!=user1.getEmail()) {
             user1.setEmail(user.getEmail());
-        }
-        if(user.getPassword() != null) {
-            user1.setPassword(user.getPassword());
         }
         if(user.getMobNo() != null) {
             user1.setMobNo(user.getMobNo());

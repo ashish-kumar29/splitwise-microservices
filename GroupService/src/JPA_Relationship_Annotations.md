@@ -200,3 +200,94 @@ class Student {
 * **Recommended** = Force all to LAZY, fetch explicitly when needed.
 
 ---
+
+Got it ✅ You want a **README.md** explaining clearly how `@JoinColumn` works and the naming rules.
+Here’s a clean version you can drop into your repo:
+
+---
+
+````markdown
+# Understanding `@JoinColumn` in JPA (Hibernate)
+
+When mapping relationships between entities in JPA, we often use the `@JoinColumn` annotation to define the **foreign key column** in the database.
+
+---
+
+## 📌 What `@JoinColumn` Does
+- Specifies the **column name** in the child table that references the parent table's primary key.
+- Used along with `@ManyToOne` or `@OneToOne`.
+
+Example:
+
+```java
+@ManyToOne
+@JoinColumn(name = "expense_id")
+private Expense expense;
+````
+
+Here:
+
+* `ExpenseSplit` is the child entity.
+* `Expense` is the parent entity.
+* The child table (`expense_split`) will have a foreign key column called `expense_id` referencing `expense.id`.
+
+---
+
+## 🔹 Rules for Naming
+
+* You can name the join column **anything you want**.
+* Common convention: `<referenced_table>_id`
+
+  * e.g., `expense_id` when referencing `expense(id)`.
+* If you don’t provide `@JoinColumn`, Hibernate will auto-generate a name, usually `<entityName>_<primaryKey>`.
+
+---
+
+## ✅ Example with Custom Name
+
+```java
+@ManyToOne
+@JoinColumn(name = "parent_expense_id") // custom column name
+private Expense expense;
+```
+
+This will create the column **`parent_expense_id`** in the `expense_split` table instead of the default `expense_id`.
+
+---
+
+## 📊 Database Example
+
+**expense table**
+
+```
+id | group_id | paid_by | total_amount | description
+----------------------------------------------------
+1  |    10    |    5    |    1000.0    | "Dinner"
+```
+
+**expense\_split table**
+
+```
+id | parent_expense_id | user_id | amount
+-----------------------------------------
+1  |        1          |    5    | 400.0
+2  |        1          |    6    | 300.0
+3  |        1          |    7    | 300.0
+```
+
+---
+
+## 💡 Quick Notes
+
+* `@JoinColumn` = control the **foreign key column name**.
+* Not mandatory → Hibernate will auto-generate one if missing.
+* Better to name explicitly for **clarity** and **consistency**.
+
+---
+
+```
+
+---
+
+Ashish, do you also want me to expand this README to cover the **full ExpenseService entities (`Expense` + `ExpenseSplit`)** with explanations, so the documentation is complete for future interviews?
+```
